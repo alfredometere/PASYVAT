@@ -1,0 +1,56 @@
+#F2PY = /cygdrive/c/Python27/python.exe "C:\Python27/Scripts/f2py.py"
+
+F2PY = f2py
+
+F2PYFLAGS= -O3
+
+F2PYOPTS = --fcompiler=gfortran
+
+LOGDIR = log
+
+DIRS = analysis gui fio toolbox
+
+TDIR = modules/analysis
+
+all: fortune rdist bseek bidx binary
+
+fortune:
+	@ echo "This Makefile compiles the wrapped FORTRAN modules"
+	@ echo "Creating compilation log directory"
+	@ mkdir $(LOGDIR)
+
+rdist:
+	@ echo "Compiling rdist module ..."
+	@ $(F2PY) -m rdist -c $(TDIR)/rdist.f90 $(F2PYOPTS) > $(LOGDIR)/rdist.log
+	@ mv rdist.dll $(TDIR)/rdist.dll
+	@ echo "Done!"
+
+bseek:
+	@ echo "Compiling bseek module ..."
+	@ $(F2PY) -m bseek -c $(TDIR)/bseek.f90 $(F2PYOPTS) > $(LOGDIR)/bseek.log
+	@ mv bseek.dll $(TDIR)/bseek.dll
+	@ echo "Done!"
+
+bidx:
+	@ echo "Compiling bidx module ..."
+	@ $(F2PY) -m bidx -c $(TDIR)/bidx.f90  $(F2PYOPTS) > $(LOGDIR)/bidx.log
+	@ mv bidx.dll $(TDIR)/bidx.dll
+	@ echo "Done!"
+
+binary:
+	@ echo "Flagging the Python script as executable"
+	@ chmod 0775 ./pasyvat
+	@ echo "Done!"
+	@ echo "To run PASYVAT, simply type './pasyvat'"
+
+clean:
+	@ echo "Doing some housekeeping!"
+	@ chmod 0664 ./pasyvat
+	@ rm -rf *.pyc *~
+	@ rm -rf full_rd.csv
+	@ rm -rf $(TDIR)/*.so
+	@ rm -rf $(LOGDIR)
+	@ rm -rf modules/*.pyc modules/*~
+	@ for prefix in $(DIRS); do \
+	      rm -rf ./modules/$$prefix/*.pyc; \
+	  done;

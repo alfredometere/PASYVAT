@@ -1,0 +1,220 @@
+PASYVAT MacOS X 10.8 Installation – 2013-04-28
+
+The installation of PASYVAT in MacOS X 10.8 is much more complicated than the installation in Linux. This is because of the fact that MacOS X is a BSD flavored Unix and it's not Linux. It took me months of struggle with non-matching library versions, fighting dragons and whatnot to figure out how to port PASYVAT to MacOS X 10.8. For this reason I think you need to read this installation guide.
+
+Premise:
+MacOS X 10.8 is the latest version available at the moment. This means that all that you compile for it, while porting from Linux what you need, it's to be considered at an EXPERIMENTAL stage of development.
+
+----------------------------
+   Xcode 4.6 and its bros
+----------------------------
+
+At the beginning there was light, then XCode 4.6.
+You can find the latest version here: https://developer.apple.com/xcode/ 
+
+Once downloaded and installed  (you might need to register yourself for free as
+an Apple developer), you need to install  the latest  MATCHING version of XCode
+Command Line Tools. There are different ways to do it.
+
+Easy Version (Recommended)
+-------------------------------------
+Run the XCode application, then from the Apple menu, select "Preferences ...".
+Once you see the preference panes, click on "Downloads" tab.  Tick the  option
+"Check for and install updates automatically" to save you from later troubles.
+Then you select  from the menu  you can see the "Command Line Tools" and press 
+the small "Install" button on  the right. Wait  until it's complete and you're
+done.
+
+
+"I'm a guru" Version
+-------------------------
+You need  to login to  your Apple Developer  personal  pages and  move to this
+address: https://developer.apple.com/downloads/index.action
+Download the Command Line Tools version which is MATCHING your XCode version.
+
+---------- End of XCode Installation -----------------------------------------
+
+-------------------------
+     X11 dilemma
+-------------------------
+As you can probably guess, Linux GUI is X11, but MacOS X has its own shit  and
+it does NOT come any longer, in its 10.8 version, with the X11 server install.
+Therefore you need to install in your Mac the X11 server separately.  This can
+be easily achieved by downloading the installation file from:
+	http://xquartz.macosforge.org/downloads/SL/XQuartz-2.7.4.dmg 
+
+Mount the disk image, follow the installer and you're done.
+
+---------- End of X11 --------------------------------------------------------
+
+---------------------------
+   The Age of FINK
+---------------------------
+Now, you need another  fancypants in your  machine, which needs XCode to work.
+Its name is FINK. Fink is an utility to compile for your MacOS X  installation
+all the most popular Linux libraries you would like to have. 
+
+Go to this  wonderful site and  just follow the  instructions. You will notice
+that the newer the  MacOS X version, the trickier  the installation.  However,
+it is still very easy to accomplish: http://www.finkproject.org/index.php
+
+Once you're done with the  installation, you want  to execute  this command to
+update your terminal environment without closing and reopening the window with
+this command: . /etc/bashrc
+
+If you are able to type "fink" and see that the binary is running,  you're now
+ready to start installing the  packages you need. Don't worry  about the whole
+dependency thing, because fink will figure it out for you.
+
+Note: Since the libraries WILL COMPILE IN YOUR MACHINE,  you've LOTS  of  time
+for coffee, cookies.
+
+Here is the list of packages you need to install. Just type from prompt:
+
+fink install vtk58
+fink install vtk58-dev
+fink install numpy-py27
+fink install scipy-py27
+fink install pyqt4-py27
+fink install qwt-qt4-x11
+fink install sip-py27
+fink install spyder-x11-py27
+fink install h5py-py27
+
+After those  installed packages, you're ready for  the next step.  It my take
+MANY HOURS to get  the compilations  done, so don't be  surprised to see your
+computer suffering for so long.
+---------------- End of fink ------------------------------------------------
+
+----------------------
+The PyQt4 trouble
+----------------------
+
+Despite PyQt4 is a fink package, there's currently a small bug in the install
+script, which  does not update  the PYTHONPATH  environment variable with the
+path where PyQt4 is installed.
+
+To do so system-wide, which I recommend, just edit your /etc/bashrc file with
+the following lines:
+	
+	PYTHONPATH=$PYTHONPATH:/sw/lib/qt4-x11/lib/python2.7/site-packages
+	export PYTHONPATH
+
+Notice that /etc/bashrc is read-only and needs sudo  permissions. This means
+that if you use "sudo vi", you need to save and quit with the option "wq!".
+
+------------- End of PyQt4 --------------------------------------------------
+
+----------------------
+The PySide manouver
+----------------------
+This wonderful  wrapper  library is needed, but  totally missing in fink. For
+this reason, you need to download it and install it separately.
+
+Unfortunately  the installer  puts it inside  the official MacOS X version of
+Python 2.7, which we don't really like because we're nasty bastards.
+
+Go here: http://www.pyside.org/
+Download and  install this  from your Finder: pyside-1.1.0-qt47-py27apple.pkg
+
+Now the magic: just run this command and enjoy:
+
+	sudo cp -r /Library/Python/2.7/site-packages/PySide \
+		   /sw/lib/python2.7/site-packages
+
+Job done. Now you can proceed further.
+--------------- End of PySide -----------------------------------------------
+
+------------------------------------------
+More PyQwt please, with ice and lemon
+------------------------------------------
+Despite fink provides you  with the qwt libs, it  leaves you the  pleasure of
+compiling and installing on your own the needed PyQwt wrapper libraries.
+Now all together, repeat with me: "THANK YOU, ALMIGHTY FINK!"
+
+Anyways, download from here:
+	http://pyqwt.sourceforge.net/download.html
+
+The PyQwt 5.2.0 source is number 6 in the list you see. Unpack it and proceed
+from the terminal as indicated in this page:
+
+ http://pyqwt.sourceforge.net/doc5/installation.html#source-code-installation
+
+Notes:
+1 - Don't struggle finding the 5.2.1 version, as it is not yet available.
+2 - Run "python2.7 configure.py -Q ../qwt-5.2" instead.
+3 - Run "sudo make install" instead.
+
+------------- End of PyQwt --------------------------------------------------
+
+--------------------
+Locale is a bitch
+--------------------
+Python  can be  annoying with  the different  naming  conventions for locales
+when passing from Linux to BSD crap. Hence, you need to edit your /etc/bashrc
+file to set  two  more environment  variables.  So, "sudo vi /etc/bashrc" and
+write these lines at the end of the file:
+
+	LANG=en_US.UTF-8
+	LC_ALL=en_US.UTF-8
+
+	export LANG LC_ALL
+
+Save with ":wq!", run ". /etc/bashrc" and you're ready for the next step.
+----------- End of locale ---------------------------------------------------
+
+--------------------
+Love me, guidata
+--------------------
+A subset of really  awesome  needed tools is called "guiqwt" and it relies on
+the sinister presence of "guidata" libraries in your system.
+
+First of all, it's obvious that we need to download the sources. From here:
+  https://code.google.com/p/guidata/downloads/detail?name=guidata-1.5.1.zip
+
+Then unzip it, either from Finder like a sissy or from terminal.
+Open a terminal if you were a sissy in the previous step and move inside
+the unpacked folder.
+Now type "sudo python2.7 setup.py install" and enjoy the results.
+
+----------- End of guidata --------------------------------------------------
+
+---------------------
+Final boss: guiqwt 
+---------------------
+
+This is the last  stage to prepare your damn MacOS X 10.8 computer to compile
+and install PASYVAT successfully.
+
+Download from here:
+      https://code.google.com/p/guiqwt/downloads/detail?name=guiqwt-2.2.1.zip
+
+Unpack from terminal or from Finder.
+From the terminal, change directory to the freshly unpacked one and type:
+	sudo python2.7 setup.py install
+
+There you go. Now just try running 'gui-test'. If it works, you're done.
+----------- End of guiqwt --------------------------------------------------
+
+Now that your Mac is finally ready, it's time to compile PASYVAT and run it.
+There are two ways to get PASYVAT:
+
+Open a terminal, change directory to the root of PASYVAT and type "make".
+Once it is done, run "./pasymac" et voila.
+
+----------------------------------------------------------------------------
+
+Disclaimer: Installing and running PASYVAT in MacOS X can cause severe acute
+migraines, schizophrenia, dementia, win a Nobel Prize and euphoria. Use with
+care.  If you  experience  any of these problems, please contact immediately
+your nearest Alfredo at: 
+	alfredo.metere@mmk.su.se
+
+----------------------------------------------------------------------------
+Alfredo Metere
+Computational Chemistry Group
+Department of Materials and Environmental Chemistry
+Arrhenius V. 16C
+106 91 - Stockholm
+Sweden
+----------------------------------------------------------------------------

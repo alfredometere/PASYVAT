@@ -1,0 +1,25 @@
+PASYVAT
+=======
+
+Installation Instructions
+-------------------------
+
+At the root directory you will find:
+1) Makefile
+2) Python script (executable as a regular shell command)
+
+How to use Makefile
+-------------------
+
+The Makefile is intended to:
+1) Compile the FORTRAN modules needed to run the software
+2) Do general housekeeping.
+
+To compile all modules (now is just one) just type "make"
+
+To clean up everything, type "make clean"
+
+After  you  compile  the module(s),  you are ready to go,
+just typing "./pasyvat" at the command prompt.
+
+Enjoy! :-)
